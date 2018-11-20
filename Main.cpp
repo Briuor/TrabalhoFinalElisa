@@ -6,7 +6,7 @@
 
 #include <bits/stdc++.h>
 #include <GL/glut.h>
-#include "Testes.h"
+#include "File.h"
 
 using namespace std;
 
