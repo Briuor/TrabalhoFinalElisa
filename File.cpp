@@ -1,12 +1,8 @@
 #include <bits/stdc++.h>
 #include <GL/glut.h>
-#include "Testes.h"
+#include "File.h"
 
 using namespace std;
-
-#include <GL/glut.h>
-#include <stdio.h>
-#include <string.h>
 
 #define MESH 0
 #define TEAPOT 1
