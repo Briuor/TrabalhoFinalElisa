@@ -6,6 +6,8 @@
 
 
 #include <GL/glut.h>
+#include <stdio.h>
+#include <string.h>
 
 #define MESH 0
 #define TEAPOT 1
@@ -17,13 +19,56 @@
 #define OCTAHEDRON 7
 #define TETRAHEDRON 8
 #define DODECAHEDRON 9
-
+// numero de cores que podem ser selecionadas
+#define NUM_CORES 6
 
 // declaração de variáveis globais
 static int shape = 1, translationX = 0, translationY = 0, rotationX = 0, rotationY = 0, rotationZ = 0;
 GLfloat angle, f_aspect;
 
+static int projOrtho = 0; // controla tipo de projecao 
+static GLubyte corObjeto[3] = {255, 0, 0}; // armazena valores RGB da cor de objeto selecionada com o mouse
+static GLubyte corFundo[3] = {0, 0, 0}; // armazena valores RGB da cor de fundo selecionada com o mouse
 
+void colorirQuadradoCor(int i) {
+	switch(i){
+		case 1: 
+			glColor3f(0.0, 1.0, 0.0); // verde
+			break;
+		case 2: 
+			glColor3f(1.0, 0.0, 0.0); // vermelho
+			break;
+		case 3: 
+			glColor3f(0.0, 0.0, 1.0); // azul
+			break;
+		case 4: 
+			glColor3f(0.8, 0.6, 0.1); // laranja
+			break;
+		case 5: 
+			glColor3f(0.6, 0.6, 0.6); // cinza
+			break;
+		case 6: 
+			glColor3f(1.0, 1.0, 0.0); // amarelo	
+			break;
+	}
+}
+
+void drawQuadradoCor() {
+	for(int i  = 1; i <= NUM_CORES; i++){
+
+		colorirQuadradoCor(i);
+
+		glPushMatrix();
+		glTranslatef(10 * i, 75, 0); //desloca para a posicao que o quadrado sera desenhado
+		glBegin(GL_QUADS);
+			glVertex3f(-5, 5, 0);
+			glVertex3f(-5, -5, 0);
+			glVertex3f(5, -5, 0);
+			glVertex3f(5, 5, 0);
+		glEnd();
+		glPopMatrix();
+	}
+}
 
 // função para desenhar uma malha de triângulos 3D
 void drawTriangleMesh(char file_name[])
@@ -86,6 +131,7 @@ void draw(){
 			break;
 	}		
 				
+
 }
 
 // função callback chamada para fazer o desenho
@@ -94,7 +140,8 @@ void display(void)
 	// limpa a janela e o depth buffer
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	glColor3f(0.0f, 0.0f, 1.0f);
+	// cor do objeto
+	glColor3f(corObjeto[0]/255.0, corObjeto[1]/255.0, corObjeto[2]/255.0);
 
 	glPushMatrix();
 
@@ -109,7 +156,13 @@ void display(void)
 		// desenha o objeto
 		draw();
 
+
 	glPopMatrix();
+ 	
+ 	glDisable(GL_LIGHTING); // desabilita luz para desenhar os quadrados de selecao de cor
+	drawQuadradoCor();		// desenha quadrados de selecao de cor
+	glEnable(GL_LIGHTING);  // habilita luz novamente
+
 
 	glutSwapBuffers();
 }
@@ -177,7 +230,10 @@ void visualization(void)
 	// inicializa sistema de coordenadas de projeção
 	glLoadIdentity();
 
-	// especifica a projeção perspectiva
+	// especifica a projeção perspectiva ou ortografica
+	if(projOrtho)
+		glOrtho(-80, 80, -80, 80, 0.4, 500);
+	else
     	gluPerspective(angle, f_aspect, 0.4, 500);
 
 	// especifica sistema de coordenadas do modelo
@@ -187,7 +243,7 @@ void visualization(void)
 	glLoadIdentity();
 
 	// especifica posição do observador e do alvo
-    	gluLookAt(0, 80, 200, 0, 0, 0, 0, 1, 0);
+    	gluLookAt(0, 0, 200, 0, 0, 0, 0, 1, 0);
 
 }
 
@@ -214,14 +270,25 @@ void reshape(GLsizei w, GLsizei h)
 // função callback chamada para gerenciar eventos do mouse
 void mouse(int button, int state, int x, int y)
 {
-	if (button == GLUT_LEFT_BUTTON)
-		if (state == GLUT_DOWN) {  // Zoom-in
-			if (angle >= 10) angle -= 5;
+	// Muda cor do objeto ao selecionar cor com o mouse
+	if (button == GLUT_LEFT_BUTTON){
+		if (state == GLUT_DOWN) {  
+			int h = glutGet(GLUT_WINDOW_HEIGHT); // pega altura da janela
+			// glReadPixels pega cor do pixel da posicao x, y clickada com o mouse
+			// os parametros x e y começam no canto inferior esquerdo da tela, h- y faz começar no canto superior esquerdo
+			// 1, 1 representam largura e altura do pixel clicado
+			// variavel corObjeto armazena os valores r, g, b de 0-255
+			glReadPixels(x, h-y, 1, 1, GL_RGB, GL_UNSIGNED_BYTE , corObjeto);	
 		}
-	if (button == GLUT_RIGHT_BUTTON)
-		if (state == GLUT_DOWN) {  // Zoom-out
-			if (angle <= 130) angle += 5;
+	}
+	// Muda cor do fundo ao selecionar cor com o mouse
+	if (button == GLUT_RIGHT_BUTTON){
+		if (state == GLUT_DOWN) {  
+			int h = glutGet(GLUT_WINDOW_HEIGHT); 
+			glReadPixels(x, h-y, 1, 1, GL_RGB, GL_UNSIGNED_BYTE , corFundo);
+			glClearColor(corFundo[0]/255.0, corFundo[1]/255.0, corFundo[2]/255.0, 255.0);	
 		}
+	}
 
 	// especifica volume da visualização
 	visualization();
@@ -235,6 +302,14 @@ void mouse(int button, int state, int x, int y)
 void keyboard (unsigned char key, int x, int y){
 
 	switch (key) {
+
+		//muda projecao
+		case 'o':
+			projOrtho = 1;
+			break;
+		case 'p':
+			projOrtho = 0;
+			break;
 
 		// rotação em torno do eixo X
 		case 'x':
@@ -369,6 +444,7 @@ int main(int argc, char** argv)
 	glutDisplayFunc(display);
 	glutReshapeFunc(reshape);	
 	glutMouseFunc(mouse);
+	//glutPassiveMotionFunc(mouseMotion);
 	glutKeyboardFunc(keyboard);
 	glutSpecialFunc(specialkey);
 	glutMainLoop();
