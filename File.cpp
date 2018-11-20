@@ -1,4 +1,4 @@
-#include <bits/stdc++.h>
+﻿#include <bits/stdc++.h>
 #include <GL/glut.h>
 #include "File.h"
 
@@ -20,6 +20,7 @@ using namespace std;
 // declaração de variáveis globais
 static int shape = 1, translationX = 0, translationY = 0, rotationX = 0, rotationY = 0, rotationZ = 0;
 GLfloat angle, f_aspect;
+GLdouble eyeZ = 200.0;
 
 static int projOrtho = 0; // controla tipo de projecao
 static GLubyte corObjeto[3] = {255, 0, 0}; // armazena valores RGB da cor de objeto selecionada com o mouse
@@ -238,7 +239,7 @@ void visualization(void)
 	glLoadIdentity();
 
 	// especifica posição do observador e do alvo
-    	gluLookAt(0, 0, 200, 0, 0, 0, 0, 1, 0);
+    	gluLookAt(0, 0, eyeZ, 0, 0, 0, 0, 1, 0);
 
 }
 
@@ -283,6 +284,15 @@ void mouse(int button, int state, int x, int y)
 			glReadPixels(x, h-y, 1, 1, GL_RGB, GL_UNSIGNED_BYTE , corFundo);
 			glClearColor(corFundo[0]/255.0, corFundo[1]/255.0, corFundo[2]/255.0, 255.0);
 		}
+	}
+
+	//Altera a proximidade da camera com o mover do scroll do mouse;
+	if (button == GLUT_WHEEL_UP){
+		eyeZ += 5;
+	}
+
+	if (button == GLUT_WHEEL_DOWN){
+		eyeZ -= 5;
 	}
 
 	// especifica volume da visualização
