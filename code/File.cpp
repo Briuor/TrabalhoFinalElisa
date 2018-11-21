@@ -17,6 +17,11 @@ using namespace std;
 // numero de cores que podem ser selecionadas
 #define NUM_CORES 6
 
+#if !defined(GLUT_WHEEL_UP)
+# define GLUT_WHEEL_UP 3
+# define GLUT_WHEEL_DOWN 4
+#endif
+
 // declaração de variáveis globais
 static int shape = 1, translationX = 0, translationY = 0, rotationX = 0, rotationY = 0, rotationZ = 0;
 GLfloat angle, f_aspect;
