@@ -75,7 +75,7 @@ void drawQuadradoCor() {
 }
 
 // função para desenhar uma malha de triângulos 3D
-void drawTriangleMesh(char file_name[])
+void drawTriangleMesh()
 {
 	for(int i = 0; i < FACE.size(); i++) {
 		glBegin(GL_TRIANGLE_FAN);
