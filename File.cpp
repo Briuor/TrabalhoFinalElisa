@@ -1,4 +1,4 @@
-﻿#include <bits/stdc++.h>
+#include <bits/stdc++.h>
 #include <GL/glut.h>
 #include "File.h"
 
@@ -25,6 +25,14 @@ GLdouble eyeZ = 200.0;
 static int projOrtho = 0; // controla tipo de projecao
 static GLubyte corObjeto[3] = {255, 0, 0}; // armazena valores RGB da cor de objeto selecionada com o mouse
 static GLubyte corFundo[3] = {0, 0, 0}; // armazena valores RGB da cor de fundo selecionada com o mouse
+
+vector<vertice> VERT;
+vector<face> FACE;
+
+void limpar() {
+  VERT.clear();
+  FACE.clear();
+}
 
 void colorirQuadradoCor(int i) {
 	switch(i){
@@ -69,9 +77,13 @@ void drawQuadradoCor() {
 // função para desenhar uma malha de triângulos 3D
 void drawTriangleMesh(char file_name[])
 {
-
-	/*************** implementar *************/
-
+	for(int i = 0; i < FACE.size(); i++) {
+		glBegin(GL_TRIANGLE_FAN);
+		glVertex3f(VERT[FACE[i].a-1].x, VERT[FACE[i].a-1].y, VERT[FACE[i].a-1].z);
+		glVertex3f(VERT[FACE[i].b-1].x, VERT[FACE[i].b-1].y, VERT[FACE[i].b-1].z);
+		glVertex3f(VERT[FACE[i].c-1].x, VERT[FACE[i].c-1].y, VERT[FACE[i].c-1].z);
+		glEnd();
+	}
 }
 
 
@@ -121,8 +133,10 @@ void draw(){
 			break;
 
 		case MESH:
-			drawTriangleMesh("dragon.obj");
+			glScalef(50.0, 50.0, 50.0);
+			drawTriangleMesh();
 			break;
+			
 		default:
 			break;
 	}
@@ -384,6 +398,14 @@ void keyboard (unsigned char key, int x, int y){
 		case '9':
 			shape = DODECAHEDRON;
 			break;
+			
+		case 'n':
+			lerArquivo();
+			break;
+
+		case 's':
+			escreverArquivo();
+			break;
 
 		// fecha a janela
 		case 27:
@@ -435,3 +457,77 @@ void specialkey (int key, int x, int y){
 	glutPostRedisplay();
 
 }
+
+vertice getVertice(char str[]) {
+  vertice aux;
+  char x;
+  if(sscanf(str, "%c %lf %lf %lf", &x, &aux.x, &aux.y, &aux.z) == 4) {
+    return aux;
+  } else {
+    cout << "error" << endl;
+    return aux;
+  }
+}
+
+face getFace(char str[]) {
+  face aux;
+  char x;
+  if(sscanf(str, "%c %d %d %d", &x, &aux.a, &aux.b, &aux.c) == 4) {
+    return aux;
+  } else {
+    cout << "error" << endl;
+    return aux;
+  }
+}
+
+void lerArquivo() {
+  limpar();
+  string nomeArq;
+  cout << "De o nome do arquivo: ";
+  cin >> nomeArq;
+  FILE *file = fopen(nomeArq.c_str(), "r");
+  if(file == NULL) {
+    cout << "Arquivo inválido" << endl;
+    return;
+  }
+
+  char linha[256];
+
+  while(fscanf(file, " %[^\n]", linha) != EOF) {
+    if(linha[0] == 'v') {
+      VERT.push_back(getVertice(linha));
+    } else if(linha[0] == 'f') {
+      FACE.push_back(getFace(linha));
+    }
+  }
+  cout << "Arquivo lido com sucesso!" << endl;
+}
+
+void escreverArquivo() {
+  string nomeArq;
+  cout << "De o nome do arquivo a ser criado: ";
+  cin >> nomeArq;
+  int t = nomeArq.size();
+
+  if(t > 4) {
+    if(nomeArq.substr(t-4, 4) != ".obj") nomeArq += ".obj";
+  }
+  else nomeArq += ".obj";
+
+  FILE *file = fopen(nomeArq.c_str(), "w");
+  if(file == NULL) {
+    cout << "Arquivo inválido" << endl;
+    return;
+  }
+
+  for(int i = 0; i < VERT.size(); i++) {
+    fprintf(file, "v %lf %lf %lf\n", VERT[i].x, VERT[i].y, VERT[i].z);
+  }
+  for(int i = 0; i < FACE.size(); i++) {
+    fprintf(file, "f %d %d %d\n", FACE[i].a, FACE[i].b, FACE[i].c);
+  }
+	fflush(file);
+
+  cout << "Arquivo criado com sucesso!" << endl;
+}
+
