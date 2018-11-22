@@ -90,7 +90,7 @@ void drawQuadradoCor() {
 void drawTriangleMesh() {
 
 	for(int i = 0; i < FACE.size(); i++) {
-    glBegin(GL_TRIANGLE_FAN);
+    		glBegin(GL_TRIANGLE_FAN);
 		glVertex3f(VERT[FACE[i].a-1].x, VERT[FACE[i].a-1].y, VERT[FACE[i].a-1].z);
 		glVertex3f(VERT[FACE[i].b-1].x, VERT[FACE[i].b-1].y, VERT[FACE[i].b-1].z);
 		glVertex3f(VERT[FACE[i].c-1].x, VERT[FACE[i].c-1].y, VERT[FACE[i].c-1].z);
