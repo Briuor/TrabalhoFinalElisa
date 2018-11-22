@@ -24,6 +24,7 @@ void specialkey (int key, int x, int y);
 vertice getVertice(char str[]);
 face getFace(char str[]);
 void limpar();
+void transformar();
 void escreverArquivo();
 void lerArquivo();
 
