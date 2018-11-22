@@ -86,6 +86,61 @@ void drawQuadradoCor() {
 	}
 }
 
+void drawSetas() {
+	glColor3f(1,1,1); // cor branca
+	// desenha dois conjuntos de 4 setas
+	for(int i = 0; i < 2; i++){ 
+
+		glPushMatrix();
+		glTranslatef(30 * i, -65, 0); // desloca para a posicao que o quadrado sera desenhado
+		glBegin(GL_LINES);
+			// ordem do desenho das setas: linha cima, linha baixo, linha horizontal
+			// Seta Esquerda
+			glVertex3f(5, 3, 0);
+			glVertex3f(8, 0, 0);
+
+			glVertex3f(5, -3, 0);
+			glVertex3f(8, 0, 0);
+
+			glVertex3f(3, 0, 0);
+			glVertex3f(8, 0, 0);
+
+			// Seta direita
+			glVertex3f(-5, 3, 0);
+			glVertex3f(-8, 0, 0);
+
+			glVertex3f(-5, -3, 0);
+			glVertex3f(-8, 0, 0);
+			
+			glVertex3f(-3, 0, 0);
+			glVertex3f(-8, 0, 0);
+			// ordem do desenho das setas: linha esquerda, linha direita, linha vertical
+			// Seta Cima
+			glVertex3f(-3, 6, 0);
+			glVertex3f(0, 10, 0);
+
+			glVertex3f(3, 6, 0);
+			glVertex3f(0, 10, 0);
+			
+			glVertex3f(0, 6, 0);
+			glVertex3f(0, 10, 0);
+
+			// Seta Baixo
+			glVertex3f(-3, -6, 0);
+			glVertex3f(0, -10, 0);
+
+			glVertex3f(3, -6, 0);
+			glVertex3f(0, -10, 0);
+			
+			glVertex3f(0, -6, 0);
+			glVertex3f(0, -10, 0);
+
+		glEnd();
+		glPopMatrix();
+	}
+
+}
+
 // função para desenhar uma malha de triângulos 3D
 void drawTriangleMesh() {
 
@@ -182,6 +237,7 @@ void display(void) {
 
  	glDisable(GL_LIGHTING); // desabilita luz para desenhar os quadrados de selecao de cor
 	drawQuadradoCor();		// desenha quadrados de selecao de cor
+	drawSetas();
 	glEnable(GL_LIGHTING);  // habilita luz novamente
 
 
@@ -284,18 +340,70 @@ void reshape(GLsizei w, GLsizei h) {
 
 }
 
+// void mouseMotion(int x, int y){
+// 	printf("x:%d y:%d\n", x, y);
+// }
+
+// Verifica qual seta foi clicada de acordo com a coordenada na tela
+// retorna 1 se mecheu na seta, 0 se nao meche
+int verificaSetaClicada(int x, int y) {
+	float translationXAnt = translationX;
+	float translationYAnt = translationY;
+	float rotationXAnt = rotationX;
+	float rotationYAnt = rotationY;
+	// conjunto de setas da esquerda para translação
+	// seta esquerda 
+	if(x > 224 && x < 241 && y > 437 && y < 456) 
+		translationX = (translationX - 5);		
+	// seta direita
+	else if(x > 258 && x < 275 && y > 437 && y < 456) 
+		translationX = (translationX + 5);		
+	// seta cima
+	else if(x > 239 && x < 260 && y > 415 && y < 426) 
+		translationY = (translationY + 5);		
+	// seta baixo
+	else if(x > 239 && x < 260 && y > 461 && y < 477) 
+		translationY = (translationY - 5);	
+	// conjunto de setas da direita para rotação
+	// seta esquerda 
+	if(x > 315 && x < 334 && y > 435 && y < 456) 
+			rotationY = (rotationY - 5) % 360;
+	// seta direita
+	else if(x > 347 && x < 366 && y > 435 && y < 456) 
+			rotationY = (rotationY + 5) % 360;
+	// seta cima
+	else if(x > 329 && x < 351 && y > 414 && y < 429) 
+			rotationX = (rotationX - 5) % 360;
+	// seta baixo
+	else if(x > 329 && x < 351 && y > 461 && y < 477) 
+			rotationX = (rotationX + 5) % 360;
+
+	// Se translação ou rotação mudou é porque mecheu na seta
+	if(translationXAnt != translationX || translationYAnt != translationY ||
+		rotationXAnt != rotationX || rotationYAnt != rotationY)
+		return 1;
+
+	return 0;
+}
+
 // função callback chamada para gerenciar eventos do mouse
 void mouse(int button, int state, int x, int y) {
 
 	// Muda cor do objeto ao selecionar cor com o mouse
+	// Se selecionar local da seta, translada ou rotaciona
 	if (button == GLUT_LEFT_BUTTON){
 		if (state == GLUT_DOWN) {
-			int h = glutGet(GLUT_WINDOW_HEIGHT); // pega altura da janela
-			// glReadPixels pega cor do pixel da posicao x, y clickada com o mouse
-			// os parametros x e y começam no canto inferior esquerdo da tela, h- y faz começar no canto superior esquerdo
-			// 1, 1 representam largura e altura do pixel clicado
-			// variavel corObjeto armazena os valores r, g, b de 0-255
-			glReadPixels(x, h-y, 1, 1, GL_RGB, GL_UNSIGNED_BYTE , corObjeto);
+			// Verifica se clicou na seta, se não clicou na seta muda de cor
+			// se clicou efetua translacao ou rotacao
+			if(!verificaSetaClicada(x, y))
+			{
+				int h = glutGet(GLUT_WINDOW_HEIGHT); // pega altura da janela
+				// glReadPixels pega cor do pixel da posicao x, y clickada com o mouse
+				// os parametros x e y começam no canto inferior esquerdo da tela, h- y faz começar no canto superior esquerdo
+				// 1, 1 representam largura e altura do pixel clicado
+				// variavel corObjeto armazena os valores r, g, b de 0-255
+				glReadPixels(x, h-y, 1, 1, GL_RGB, GL_UNSIGNED_BYTE , corObjeto);
+			}
 		}
 	}
 	// Muda cor do fundo ao selecionar cor com o mouse
