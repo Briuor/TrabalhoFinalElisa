@@ -33,13 +33,18 @@ static GLubyte corFundo[3] = {0, 0, 0}; // armazena valores RGB da cor de fundo 
 
 vector<vertice> VERT;
 vector<face> FACE;
+vector<vertice> NOVO;
+
+double pi = M_PI;
 
 void limpar() {
   VERT.clear();
   FACE.clear();
+  NOVO.clear();
 }
 
 void colorirQuadradoCor(int i) {
+
 	switch(i){
 		case 1:
 			glColor3f(0.0, 1.0, 0.0); // verde
@@ -60,10 +65,12 @@ void colorirQuadradoCor(int i) {
 			glColor3f(1.0, 1.0, 0.0); // amarelo
 			break;
 	}
+
 }
 
 void drawQuadradoCor() {
-	for(int i  = 1; i <= NUM_CORES; i++){
+
+  for(int i = 1; i <= NUM_CORES; i++){
 
 		colorirQuadradoCor(i);
 
@@ -80,17 +87,17 @@ void drawQuadradoCor() {
 }
 
 // função para desenhar uma malha de triângulos 3D
-void drawTriangleMesh()
-{
+void drawTriangleMesh() {
+
 	for(int i = 0; i < FACE.size(); i++) {
-		glBegin(GL_TRIANGLE_FAN);
+    glBegin(GL_TRIANGLE_FAN);
 		glVertex3f(VERT[FACE[i].a-1].x, VERT[FACE[i].a-1].y, VERT[FACE[i].a-1].z);
 		glVertex3f(VERT[FACE[i].b-1].x, VERT[FACE[i].b-1].y, VERT[FACE[i].b-1].z);
 		glVertex3f(VERT[FACE[i].c-1].x, VERT[FACE[i].c-1].y, VERT[FACE[i].c-1].z);
 		glEnd();
 	}
-}
 
+}
 
 // função para desenhar objetos
 void draw(){
@@ -141,7 +148,7 @@ void draw(){
 			glScalef(50.0, 50.0, 50.0);
 			drawTriangleMesh();
 			break;
-			
+
 		default:
 			break;
 	}
@@ -150,8 +157,7 @@ void draw(){
 }
 
 // função callback chamada para fazer o desenho
-void display(void)
-{
+void display(void) {
 	// limpa a janela e o depth buffer
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -160,7 +166,7 @@ void display(void)
 
 	glPushMatrix();
 
-	        // cria matrizes de transformação
+	  // cria matrizes de transformação
 		glRotatef ((GLfloat) rotationX, 1.0, 0.0, 0.0);
 		glRotatef ((GLfloat) rotationY, 0.0, 1.0, 0.0);
 		glRotatef ((GLfloat) rotationZ, 0.0, 0.0, 1.0);
@@ -182,11 +188,9 @@ void display(void)
 	glutSwapBuffers();
 }
 
-
-
 // inicializa parâmetros de rendering
-void init(void)
-{
+void init(void) {
+
 	GLfloat luz_ambiente[4]={0.2, 0.2, 0.2, 1.0};
 	GLfloat luz_difusa[4]={0.7, 0.7, 0.7, 1.0};	 // "cor"
 	GLfloat luz_especular[4]={1.0, 1.0, 1.0, 1.0};    // "brilho"
@@ -197,7 +201,7 @@ void init(void)
 	GLint espec_material = 60;
 
  	// especifica que a cor de fundo da janela será preta
-        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+  glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
 	// habilita o modelo de colorização de Gouraud
 	glShadeModel(GL_SMOOTH);
@@ -232,13 +236,12 @@ void init(void)
 	// habilita normalização dos vetores após as transformações
 	glEnable(GL_RESCALE_NORMAL);
 
-    	angle=45;
+  angle = 45;
 
 }
 
 // função usada para especificar o volume de visualização
-void visualization(void)
-{
+void visualization(void) {
 	// especifica sistema de coordenadas de projeção
 	glMatrixMode(GL_PROJECTION);
 
@@ -247,9 +250,9 @@ void visualization(void)
 
 	// especifica a projeção perspectiva ou ortografica
 	if(projOrtho)
-		glOrtho(-80, 80, -80, 80, 0.4, 500);
+    glOrtho(-80, 80, -80, 80, 0.4, 500);
 	else
-    	gluPerspective(angle, f_aspect, 0.4, 500);
+    gluPerspective(angle, f_aspect, 0.4, 500);
 
 	// especifica sistema de coordenadas do modelo
 	glMatrixMode(GL_MODELVIEW);
@@ -258,18 +261,17 @@ void visualization(void)
 	glLoadIdentity();
 
 	// especifica posição do observador e do alvo
-    	gluLookAt(0, 0, eyeZ, 0, 0, 0, 0, 1, 0);
+  gluLookAt(0, 0, eyeZ, 0, 0, 0, 0, 1, 0);
 
 }
 
 // função callback chamada quando o tamanho da janela é alterado
-void reshape(GLsizei w, GLsizei h)
-{
+void reshape(GLsizei w, GLsizei h) {
 	// para previnir uma divisão por zero
 	if ( h == 0 ) h = 1;
 
 	// especifica o tamanho da viewport
-        glViewport(0, 0, w, h);
+  glViewport(0, 0, w, h);
 
 	// calcula a correção de aspecto
 	f_aspect = (GLfloat)w/(GLfloat)h;
@@ -283,8 +285,8 @@ void reshape(GLsizei w, GLsizei h)
 }
 
 // função callback chamada para gerenciar eventos do mouse
-void mouse(int button, int state, int x, int y)
-{
+void mouse(int button, int state, int x, int y) {
+
 	// Muda cor do objeto ao selecionar cor com o mouse
 	if (button == GLUT_LEFT_BUTTON){
 		if (state == GLUT_DOWN) {
@@ -323,10 +325,9 @@ void mouse(int button, int state, int x, int y)
 
 
 // teclado
-void keyboard (unsigned char key, int x, int y){
+void keyboard (unsigned char key, int x, int y) {
 
 	switch (key) {
-
 		//muda projecao
 		case 'o':
 			projOrtho = 1;
@@ -403,7 +404,7 @@ void keyboard (unsigned char key, int x, int y){
 		case '9':
 			shape = DODECAHEDRON;
 			break;
-			
+
 		case 'n':
 			lerArquivo();
 			break;
@@ -427,7 +428,6 @@ void keyboard (unsigned char key, int x, int y){
 	// exibe objetos na tela
 	glutPostRedisplay();
 }
-
 
 // teclas especiais
 void specialkey (int key, int x, int y){
@@ -464,6 +464,7 @@ void specialkey (int key, int x, int y){
 }
 
 vertice getVertice(char str[]) {
+
   vertice aux;
   char x;
   if(sscanf(str, "%c %lf %lf %lf", &x, &aux.x, &aux.y, &aux.z) == 4) {
@@ -486,6 +487,7 @@ face getFace(char str[]) {
 }
 
 void lerArquivo() {
+
   limpar();
   string nomeArq;
   cout << "De o nome do arquivo: ";
@@ -506,6 +508,54 @@ void lerArquivo() {
     }
   }
   cout << "Arquivo lido com sucesso!" << endl;
+
+}
+
+void transformar() {
+
+  double senRX = sin(rotationX*pi/180.0), cosRX = cos(rotationX*pi/180.0);
+  double senRY = sin(rotationY*pi/180.0), cosRY = cos(rotationY*pi/180.0);
+  double senRZ = sin(rotationZ*pi/180.0), cosRZ = cos(rotationZ*pi/180.0);
+
+  NOVO = VERT;
+  vector<vertice> aux;
+  vertice vaux;
+
+  double soma = 0;
+
+  // rotação em X
+  for(int i = 0; i < NOVO.size(); i++) {
+    vaux.x = NOVO[i].x;
+    vaux.y = NOVO[i].y * cosRX - NOVO[i].z * senRX;
+    vaux.z = NOVO[i].y * senRX + NOVO[i].z * cosRX;
+    aux.push_back(vaux);
+  }
+
+  NOVO = aux; // atualiza a matriz de vertices
+  aux.clear(); // limpa a matriz auxiliar
+
+  //rotação em Y
+  for(int i = 0; i < NOVO.size(); i++) {
+    vaux.x = NOVO[i].z * senRY + NOVO[i].x * cosRY;
+    vaux.y = NOVO[i].y;
+    vaux.z = NOVO[i].z * cosRY - NOVO[i].x * senRY;
+    aux.push_back(vaux);
+  }
+
+  NOVO = aux; // atualiza a matriz de vertices
+  aux.clear(); // limpa a matriz auxiliar
+
+  //rotação em Z
+  for(int i = 0; i < NOVO.size(); i++) {
+    vaux.x = NOVO[i].x * cosRZ - NOVO[i].y * senRZ;
+    vaux.y = NOVO[i].x * senRZ + NOVO[i].y * cosRZ;
+    vaux.z = NOVO[i].z;
+    aux.push_back(vaux);
+  }
+
+  NOVO = aux; //atualiza a matriz de vertices
+  aux.clear();  // limpa a matriz auxiliar
+
 }
 
 void escreverArquivo() {
@@ -525,8 +575,10 @@ void escreverArquivo() {
     return;
   }
 
-  for(int i = 0; i < VERT.size(); i++) {
-    fprintf(file, "v %lf %lf %lf\n", VERT[i].x, VERT[i].y, VERT[i].z);
+  transformar();
+
+  for(int i = 0; i < NOVO.size(); i++) {
+    fprintf(file, "v %lf %lf %lf\n", NOVO[i].x, NOVO[i].y, NOVO[i].z);
   }
   for(int i = 0; i < FACE.size(); i++) {
     fprintf(file, "f %d %d %d\n", FACE[i].a, FACE[i].b, FACE[i].c);
@@ -535,4 +587,3 @@ void escreverArquivo() {
 
   cout << "Arquivo criado com sucesso!" << endl;
 }
-
